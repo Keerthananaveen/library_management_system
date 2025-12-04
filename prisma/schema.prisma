@@ -1,0 +1,46 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  Student
+  Librarian
+}
+
+enum Status {
+  Taken
+  Pending
+  Returned
+}
+
+model User {
+  user_id    Int        @id @default(autoincrement())
+  username   String     @unique
+  password   String
+  created_at DateTime   @default(now())
+  role       Role       @default(Student)
+  borrowers  Borrower[]
+}
+
+model Books {
+  book_id          Int        @id @default(autoincrement())
+  title            String
+  author           String
+  publisher        String
+  publication_year Int
+  available_copies Int
+  borrowers        Borrower[]
+}
+
+model Borrower {
+  borrower_id Int       @id @default(autoincrement())
+  user_id     Int
+  book_id     Int
+  user        User      @relation(fields: [user_id], references: [user_id])
+  book        Books     @relation(fields: [book_id], references: [book_id])
+  borrow_date DateTime  @default(now())
+  return_date DateTime?
+  due_date    DateTime
+  status      Status
+}
